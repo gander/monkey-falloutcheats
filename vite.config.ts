@@ -9,9 +9,10 @@ export default defineConfig({
     monkey({
       entry: 'src/main.ts',
       userscript: {
-        icon: 'https://vitejs.dev/logo.svg',
         namespace: 'npm/vite-plugin-monkey',
         match: ['https://falloutcheats.com/perks'],
+        version: '0.1.0',
+        author: 'Adam Gąsowski',
       },
       build: {
         externalGlobals: {
