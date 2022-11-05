@@ -2,12 +2,38 @@
 import {inject, reactive, ref, watch} from 'vue';
 import {ExtractedPerk, Perk} from './types';
 
-const perks: Perk[] = reactive(inject<ExtractedPerk[]>('perks', []).map(perk => ({...perk, selected: false})));
+function split(value: string): { group: string, level: number } | null {
+  const result = /^(?<group>.+)\s(?<level>\d+)$/.exec(value)?.groups;
+  return result ? {
+    group: result.group,
+    level: parseInt(result.level),
+  } : null;
+}
+
+const extractedPerks = inject<ExtractedPerk[]>('perks', []);
+const groupedPerks = reactive<Map<string, Perk[]>>(new Map);
+const allPerks = reactive<Perk[]>([]);
 const output = ref('');
 
+extractedPerks.forEach(ePerk => {
+  const result = split(ePerk.name);
+  if (result) {
+    const {group, level} = result;
+    const perk = reactive<Perk>({...ePerk, group, level, selected: false});
+    allPerks.push(perk);
+
+    if (!groupedPerks.has(group)) {
+      groupedPerks.set(group, []);
+    }
+
+    groupedPerks.get(group)?.push(perk);
+  }
+});
+
+
 watch(
-    perks,
-    () => output.value = perks
+    allPerks,
+    () => output.value = allPerks
         .filter(perk => perk.selected)
         .map(perk => `# ${perk.name}\nplayer.addperk ${perk.code}\n`)
         .join(`\n`),
@@ -19,15 +45,20 @@ watch(
   <table class="table table-hover">
     <thead>
     <tr>
-      <th>Name</th>
+      <th>Level</th>
       <th>Code</th>
     </tr>
     </thead>
     <tbody>
-    <tr class="tsr" :class="['bg-gradient', {'bg-success': perk.selected}]" v-for="perk in perks" @click="perk.selected = !perk.selected" :key="perk.code">
-      <td class="ts w-50">{{ perk.name }}</td>
-      <td class="ts w-50">{{ perk.code }}</td>
-    </tr>
+    <template v-for="[group,perks] in groupedPerks">
+      <tr>
+        <th colspan="2">{{ group }}</th>
+      </tr>
+      <tr class="tsr" :class="['bg-gradient', {'bg-success': perk.selected}]" v-for="perk in perks" @click="perk.selected = !perk.selected" :key="perk.code">
+        <td class="ts w-50">{{ perk.level }}</td>
+        <td class="ts w-50">{{ perk.code }}</td>
+      </tr>
+    </template>
     </tbody>
   </table>
 </template>
