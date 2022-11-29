@@ -1,5 +1,6 @@
 {
   "name": "@gander/monkey-falloutcheats",
+  "author": "Adam Gąsowski",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -8,11 +9,38 @@
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview"
   },
+  "release-it": {
+    "git": {
+      "tagName": "v${version}",
+      "commitArgs": [
+        "-S"
+      ]
+    },
+    "github": {
+      "release": true,
+      "draft": true,
+      "assets": [
+        "dist/**/*.js"
+      ],
+      "releaseName": "v${version}"
+    },
+    "npm": {
+      "publish": false
+    },
+    "hooks": {
+      "after:bump": [
+        "yarn build",
+        "yarn auto-changelog --package --commit-limit false --template keepachangelog --hide-credit"
+      ]
+    }
+  },
   "dependencies": {
     "vue": "^3.2.40"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^3.1.2",
+    "auto-changelog": "^2.4.0",
+    "release-it": "^15.5.0",
     "typescript": "^4.8.4",
     "vite": "^3.1.8",
     "vite-plugin-monkey": "^2.7.3",

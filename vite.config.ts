@@ -11,8 +11,6 @@ export default defineConfig({
       userscript: {
         namespace: 'npm/vite-plugin-monkey',
         match: ['https://falloutcheats.com/perks'],
-        version: '0.1.0',
-        author: 'Adam Gąsowski',
       },
       build: {
         externalGlobals: {
